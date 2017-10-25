@@ -1,0 +1,125 @@
+#import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+#
+from sklearn.linear_model import LinearRegression
+#from mpl_toolkits.mplot3d import axes3d
+#
+#import seaborn as sns
+import pdb
+
+def bp():
+    pdb.set_trace()
+
+def plotData(X, y):
+    plt.figure('Ex1')   # open a new figure window
+    plt.scatter(X, y, c = 'r', marker = 'x')
+
+    xmin = min(X); xmax = max(X)
+    ymin = min(y); ymax = max(y)
+    plt.xlim(xmin - 2, xmax + 2)
+    plt.ylim(ymin - 2, ymax + 2)
+    
+    plt.xlabel('Population of City in 10,000s')
+    plt.ylabel('Profit in $10,000s')
+
+def computeCost(X, y, theta):
+    m = y.shape[0]
+    h = X.dot(theta)
+    delta = h - y
+    J = (1 / float(2 * m)) * (delta.T.dot(delta))
+    return J
+
+def gradientDescent(X, y, theta, alpha, iterations):
+    m = y.shape[0]
+    J = np.zeros(iterations)
+    for i in xrange(iterations):
+        h = X.dot(theta)
+        theta = theta - alpha * (1 / float(m)) * X.T.dot(h - y)
+        J[i] = computeCost(X, y, theta)
+    return (theta, J)
+
+############################################
+##  1. Plotting
+##  2017.10.24
+############################################
+print 'Ploting Data First ...'
+
+data = np.loadtxt('data/ex1data1.txt', delimiter = ',')
+
+X = data[:, 0]
+y = data[:, 1]
+
+if X.shape[0] != y.shape[0]:
+    print 'Example is not equal from X to y!'
+    exit(-1)
+
+m = y.shape[0]
+
+num_Features = X.size / m
+num_Labels = y.size / m
+
+# Plot Data
+plotData(X, y)
+plt.show()
+
+############################################
+##  2. Cost and Gradient Descent
+##  2017.10.25
+############################################
+
+X = np.c_[np.ones([m, 1]), X]   # Add all ones in the first column
+y = y.reshape(-1, num_Labels)
+theta = np.zeros([num_Features + 1, 1])  # Initialize parameters
+
+# Gradient Descent Settings
+iters = 1500
+alpha = 0.01
+
+print 'Testing the cost function...'
+
+J = computeCost(X, y, theta)
+print 'With theta = [0 , 0], Cost computed = %f' % J
+print 'Expected cost value is 32.07\n'
+
+# With more test
+J = computeCost(X, y, np.c_[[-1, 2]])
+print 'With theta = [-1, 2], Cost computed = %f' % J
+print 'Expected cost value is 54.24\n'
+
+print 'Running Gradient Descent...'
+theta, J = gradientDescent(X, y, theta, alpha, iters)
+print 'Theta found by gradient descent: ', theta
+print 'Expected theta values', np.c_[[-3.6303, 1.1664]]
+
+# Plot the linear fit
+X_raw = X[:, num_Features].reshape(-1, num_Features)
+plotData(X_raw, y)
+plt.plot(X_raw, X.dot(theta), label = 'Gradient Descent')
+# Compare with scikit lib
+regression = LinearRegression()
+regression.fit(X_raw.reshape(-1, num_Features), y)
+plt.plot(X_raw, regression.predict(X_raw), label = 'Scikit Linear Regression')
+plt.legend(loc = 'best')
+plt.show()
+
+# Plot Iterations of computing cost function
+plt.plot(J)
+plt.xlabel('Iterations')
+plt.ylabel('Cost Function')
+plt.xlim(0, 1600)
+plt.show()
+
+# Predict values for population size of 35,000 and 70,000
+predict1 = np.c_[1, 3.5].dot(theta) * 10000
+print 'For population = 35,000, we predict a profit of ', predict1
+predict2 = np.c_[1, 7].dot(theta) * 10000
+print 'For population = 35,000, we predict a profit of ', predict2
+
+
+############################################
+##  3. Visualizing J
+##  2017.10.25
+############################################
+
+#bp()
