@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 #
 from sklearn.linear_model import LinearRegression
-#from mpl_toolkits.mplot3d import axes3d
+from mpl_toolkits.mplot3d import axes3d
 #
 #import seaborn as sns
 import pdb
@@ -114,12 +114,40 @@ plt.show()
 predict1 = np.c_[1, 3.5].dot(theta) * 10000
 print 'For population = 35,000, we predict a profit of ', predict1
 predict2 = np.c_[1, 7].dot(theta) * 10000
-print 'For population = 35,000, we predict a profit of ', predict2
-
+print 'For population = 35,000, we predict a profit of ', predict2, '\n'
 
 ############################################
 ##  3. Visualizing J
 ##  2017.10.25
 ############################################
+print 'Visualizing J...'
+theta0_vals = np.linspace(-10, 10, 100)
+theta1_vals = np.linspace(-1, 4, 100)
 
-#bp()
+J_vals = np.zeros((theta0_vals.size, theta1_vals.size))
+
+for (row, column), v in np.ndenumerate(J_vals):
+    t = np.c_[[theta0_vals[column], theta1_vals[row]]]
+    J_vals[row, column] = computeCost(X, y, t)
+    
+fig = plt.figure(figsize = (15, 6))
+
+ax1 = fig.add_subplot(121)
+ax2 = fig.add_subplot(122, projection = '3d')
+
+# Contour plot
+ax1.contour(theta0_vals, theta1_vals, J_vals, np.logspace(-2, 3, 20), cmap=plt.cm.jet)
+ax1.scatter(theta[0], theta[1], c = 'r')
+
+# Surface plot
+xx, yy = np.meshgrid(theta0_vals, theta1_vals, indexing='xy')
+ax2.plot_surface(xx, yy, J_vals, rstride=1, cstride=1, alpha=0.7, cmap=plt.cm.jet)
+ax2.set_zlabel('Cost')
+ax2.set_zlim(J_vals.min(), J_vals.max())
+ax2.view_init(elev=15, azim=230)
+
+for ax in fig.axes:
+    ax.set_xlabel(r'$\theta_0$', fontsize = 17)
+    ax.set_ylabel(r'$\theta_1$', fontsize = 17)
+
+plt.show()
