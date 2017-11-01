@@ -1,4 +1,4 @@
-from Ex1_single_variable import *
+from Linear_Regression import *
 
 if __name__ == '__main__':
     ############################################
